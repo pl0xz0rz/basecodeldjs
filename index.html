@@ -1,0 +1,105 @@
+<!doctype HTML>
+<HTML>
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=iso-8859-2" />    
+<title> Uber pwnage </title>
+<link rel="stylesheet" type="text/css" href="styl.css">
+</head>
+<body id="obrazovka">
+
+<!--TODO: Audio here-->
+
+<div id="hra" class="velkyobdlznik">
+
+<div id="abovescreen">
+
+</div>
+
+<canvas id="hlavnaObr" width="600" height="400">
+</canvas>
+<!--Maybe change width and height-->
+
+<div id="resourcesdiv">
+
+<!--TODO: Import graphics-->
+
+</div>
+
+</div>
+
+<div id="vyhra" class="velkyobdlznik">
+ <h2>Congratulations.</h2>
+ <div>
+  You have returned the super potato to its original owner. The world is saved, however burglars have stolen everything in your house. To be continued...
+ </div>
+ <div>
+    It took you <span id="endtime"></span> seconds.
+ </div>
+ <div id="esteRazW" onClick="switchScr(0)" class="tlacidlo">Play again?</div>
+ <img src="mutebutton.png" alt="Teh mute button" onClick="muteButton();"/>
+</div>
+
+<div id="prehra" class="velkyobdlznik">
+ <h2> Game over </h2>
+ <div> You have failed. </div><br><br><br><br><br><div onClick="tryAgain()" class="tlacidlo">Try again from last checkpoint? </div>
+
+ <div id="esteRazL" onClick="switchScr(0)" class="tlacidlo">Give up?</div>
+ <img src="mutebutton.png" alt="Teh mute button" onClick="muteButton();"/>
+</div>
+
+<div id="introMenu" class="velkyobdlznik">
+ <h1> Uber pwnage </h1>
+ <img src="spud.png" alt="pl0xz0rz"/>
+ <div class="tlacidlo" onClick="newGame()"> Play </div>
+ <div class="tlacidlo" onClick="switchScr(2)"> Instructions</div>
+ <div class="tlacidlo" onClick="switchScr(2)"> Settings</div>
+<img src="mutebutton.png" alt="Teh mute button" onClick="muteButton();"/>
+</div>
+<!-- I will make this look better-->
+
+<div id="tehWinz" class="velkyobdlznik">
+ <h2>WIN </h2>
+ <img src="spud.png" alt="pl0xz0rz"/>
+<br>
+ This is a potato.
+ <div id="newGameStart" class="tlacidlo" onClick="tryagain()"> Continue? </div>
+</div>
+
+<div id="settings" class="velkyobdlznik">
+<h2>Settings</h2>
+<div> This is a placeholder screen. It only contains a mute button and a reset progress button. </div>
+<div onClick="resetProgress()" class="tlacidlo">Reset progress</div>
+<div id="storyLevelUp" onClick="moveBack()" class="tlacidlo">Back</div>
+
+ <img src="mutebutton.png" alt="Teh mute button" onClick="muteButton();"/>
+</div>
+
+<div id="inventorycontainer" class="velkyobdlznik">
+<h2>Inventory: </h2>
+<div id="inventorydiv">
+</div>
+<div onClick="resume()" class="tlacidlo"> Resume </div>
+</div>
+
+<script src="jquery.js">
+</script>
+<script src="vec2.js">
+</script>
+<script src="hittest.js">
+</script>
+<script src="enterFrame.js">
+</script>
+<script src="nacitajLevel.js">
+</script>
+<script src="ingameObjects.js">
+</script>
+<script src="globalvars.js">
+</script>
+<script src="aiscript.js">
+</script> 
+<script src="chatbox.js">
+</script>
+<script src="aimath.js">
+</script>
+</body>
+</HTML>
