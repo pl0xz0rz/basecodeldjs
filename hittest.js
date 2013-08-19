@@ -166,66 +166,9 @@ function AxisAlignedBoundingBox(x,y,width,height){
 }
 
 /**************************************
-2D BST - for prune and sweep collsion detection
+2D BIH - for prune and sweep collsion detection
 *************************/
-function BST2(length){
-        var l = 1;
-	while (length > (l <<= 1));
-	this.buffer = new Array(l);
-	this.xtemp = new Array(l);
-	this.ytemp = new Array(l);
-	this.l = 0;
 
-	this.sort = sort;
-	function sort(){
-		this.xtemp.sort(function(a,b){return a.x - b.x});
-		this.ytemp.sort(function(a,b){return a.y - b.y});
-		//TODO: Perform reverse quicksort
-	}
-
-	this.push = push;
-	function push(item){
-		this.xtemp[this.l] = item;
-		this.ytemp[this.l] = item;
-		this.l++; 
-	}
-
-	this.hittestAABB = hittestAABB;
-	function hittestAABB(box,selectarray){
-		var aoc = 0;
-		var hi,lo,t;
-		hi = this.l-1;
-		lo = 0;
-		t = hi >> 1;
-		var lx = box.x - 111;
-		var hx = lx + box.width + 222;
-//		console.log((this.xtemp[t].x > hx) || (this.xtemp[t].x < lx));
-		while((hi>=lo) && ((this.xtemp[t].x > hx) || (this.xtemp[t].x < lx))) {
-			if (this.xtemp[t].x < lx) {lo = t+1;}
-			else hi = t-1;
-			t = (hi+lo)>> 1;
-		}
-		if (hi < lo) return 0;
-		selectarray[0] = this.xtemp[t];
-		++aoc;
-		hi = t+1;
-		lo = t-1;
-//		console.log(hi);
-//		console.log(lo);
-		while ((hi < this.l) && (this.xtemp[hi].x <= hx)){
-			selectarray[aoc] = (this.xtemp[hi]);
-			++hi;
-			++aoc;		
-		} 
-		while((lo >= 0) && (this.xtemp[lo].x >= lx)){
-			selectarray[aoc] = (this.xtemp[lo]);
-			--lo;
-			++aoc;
-		}
-		return aoc;
-		//TODO: Optimize
-	}
-}
 
 function bih2d(length){
         var l = 1;
@@ -510,8 +453,3 @@ function bih2d(length){
 	}
 }
 
-function aabbcorner(x,y,bb){
-	this.x = x;
-	this.y = y;
-	this.box = bb;
-}
