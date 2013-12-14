@@ -308,6 +308,7 @@ function bih2d(length){
 			if(this.buffer[i] === null) {
 				this.buffer[i] = element;
 				this.empty = false;
+				this.fullness = i;
 				break;
 			}
 		}
@@ -335,7 +336,6 @@ function bih2d(length){
 		var swaptemp;
 		var mid;
 		this.empty = true;
-		this.fullness = 0;
 
 		parity = 0;
 		lastbit = 2;
@@ -345,7 +345,7 @@ function bih2d(length){
 		for(var i=1;i<=this.length;++i) {
 			a = this.buffer[i];
 			if(a && !a.exists) this.buffer[i] = null;
-			if(a) {this.empty = false;this.fullness ++;}
+			if(a) this.empty = false
 		}
 
 		this.half = this.length >> 1;
@@ -399,19 +399,16 @@ function bih2d(length){
 
 			while(lhi <= this.length){
 				for(j = llo; j <= lhi; ++j){
-					a = this.buffer[i];
-					b = this.buffer[j];
-					if(b){
+					if(this.buffer[j]){
 						if(parity){
-							if(a.x1 > b.x1 ) {
-								if(a.x2 < b.x2) {
-									this.buffer[i] = b;
-									this.buffer[j] = a;
-									a = this.buffer[i];
-									b = this.buffer[j];
+							if(this.buffer[i].x1 > this.buffer[j].x1 ) {
+								if(this.buffer[i].x2 < this.buffer[j].x2) {
+									swaptemp = this.buffer[i];
+									this.buffer[i] = this.buffer[j];
+									this.buffer[j] = swaptemp;
 								} 
-							}else if(a.x2 < b.x2) do {
-								if ((this.buffer[sright])  && (a.x2 < this.buffer[sright].x2)){
+							}else if(this.buffer[i].x2 < this.buffer[j].x2) do {
+								if ((this.buffer[sright])  && (this.buffer[i].x2 < this.buffer[sright].x2)){
 									++sright;
 									if(sright > srhi){
 										srlo <<= 1;
@@ -420,11 +417,11 @@ function bih2d(length){
 										sright = srlo;
 									}
 								} else {
-									this.buffer[j] = this.buffer[sright];
-									this.buffer[sright] = b;
-									b = this.buffer[j];
+									swaptemp = this.buffer[sright];
+									this.buffer[sright] = this.buffer[j];
+									this.buffer[j] = swaptemp;
 								}
-							} while(b  && (a.x2 < b.x2));  
+							} while(this.buffer[j]  && (this.buffer[i].x2 < this.buffer[j].x2));  
 						} else {
 							if(this.buffer[i].y1 > this.buffer[j].y1 ) {
 								if(this.buffer[i].y2 < this.buffer[j].y2) {
@@ -511,6 +508,14 @@ function bih2d(length){
 				rhi |= 1;				
 			}
 		}
+
+
+		for(var i=1;i<=this.length;++i) {
+			a = this.buffer[i];
+			if(!a) {this.fullness=i;break;}
+		}
+
+
 	}
 
 	this.search = search;
