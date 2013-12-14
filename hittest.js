@@ -115,13 +115,131 @@ function narrowPhase(from,to,type){
 						from.vy *= -.1;
 						return true;
 					}
-				} else {console.log("inside");
-					console.log(from.height);
-					console.log(from.y);
-					console.log(to.y);
+				} else {
 					return true;
 				}
 			}
+		break;
+		case 1:
+			var vx  = from.vx  + from.ax  * .5 - to.svx  - to.sax  * .5;
+			var vy  = from.vy  + from.ay  * .5 - to.svy  - to.say  * .5;
+			var svx = from.svx + from.sax * .5 - to.vx   - to.ax   * .5;
+			var svy = from.svy + from.say * .5 - to.vy   - to.ay   * .5;
+			var ax  =  vx / (from.invMass + to.invMass);
+			var ay  =  vy / (from.invMass + to.invMass);
+			var sax = svx / (from.invMass + to.invMass);
+			var say = svy / (from.invMass + to.invMass);
+			if (from.x + from.width <= to.x){
+				if (from.y + from.height <= to.y){
+					if (useckaUsecka(from.x,from.y + from.height,to.x,to.y, vx, svy,to.width,0) || 
+					    useckaUsecka(to.x,to.y,from.x,from.y + from.height,-vx,-svy,from.width,0)){ //From top
+						
+						from.say = 0;
+						from.svy -= say * from.invMass;
+						to.ay = 0;
+						to.vy += say * to.invMass;
+						return true;
+					} else if(useckaUsecka(from.x + from.width,from.y,to.x,to.y,svx,vy,0,to.height) ||
+						 useckaUsecka(to.x,to.y,from.x + from.width,from.y,-svx,-vy,0,from.height)){ //From left
+						from.sax = 0;
+						from.svx -= sax * from.invMass;
+						to.ax = 0;
+						to.vx += sax * to.invMass;
+						return true;
+					} else return false;
+				} else if (from.y >= to.y + to.height){
+					if (useckaUsecka(from.x,from.y,to.x,to.y + to.height,vx,svy,to.width,0) ||
+					   useckaUsecka(to.x,to.y + to.height,from.x,from.y,-vx,-svy,from.width,0)){  //From bottom
+						from.ay = 0;
+						from.vy -= ay * from.invMass;
+						to.say = -0;
+						to.svy += ay * to.invMass;
+						console.log(useckaUsecka(to.x,to.y + to.height,from.x,from.y,-vx,-svy,from.width,0));
+						return true;
+					} else if(useckaUsecka(from.x + from.width,from.y,to.x,to.y,svx,vy,0,to.height) ||
+						 useckaUsecka(to.x,to.y,from.x + from.width,from.y,-svx,-vy,0,from.height)){ //From left
+						from.sax = -0;
+						from.svx -= sax * from.invMass;
+						to.ax = 0;
+						to.vx += sax * to.invMass;
+						return true;
+					} else return false;				
+				} else {
+					if(useckaUsecka(from.x + from.width,from.y,to.x,to.y,svx,svy,0,to.height) ||
+					  useckaUsecka(to.x,to.y,from.x + from.width,from.y,-svx,-svy,0,from.height)){ //From left
+						from.sax = -0;
+						from.svx -= sax * from.invMass;
+						to.ax = 0;
+						to.vx += sax * to.invMass;
+						return true;
+					} else return false;	
+				}
+			} else if (from.x >= to.x + to.width){
+				if (from.y + from.height <= to.y){
+					if (useckaUsecka(from.x,from.y + from.height,to.x,to.y,vx,svy,to.width,0) || 
+					   useckaUsecka(to.x,to.y,from.x,from.y + from.height,-vx,-svy,from.width,0)){ //From top
+						from.say = -0;
+						from.svy -= say * from.invMass;
+						to.ay = 0;
+						to.vy += say * to.invMass;
+						return true;
+					} else if(useckaUsecka(from.x,from.y,to.x + to.width,to.y,vx,vy,0,to.height) || 
+						 useckaUsecka(to.x + to.width,to.y,from.x,from.y,-vx,-vy,0,from.height)){ //From right
+						from.ax = 0;
+						from.vx -= ax * from.invMass;
+						to.sax = -0;
+						to.svx += ax * to.invMass;
+						return true;
+					} else return false;
+				} else if (from.y >= to.y + to.height){
+					if (useckaUsecka(from.x + from.width,from.y,to.x,to.y + to.height,svx,vy,to.width,0) ||
+					   useckaUsecka(from.x,from.y,to.x,to.y + to.height,vx,vy,to.width,0)){ //Bottom
+						from.ay = 0;
+						from.vy -= ay * from.invMass;
+						to.say = -0;
+						to.svy += ay * to.invMass;
+						return true;
+					} else if(useckaUsecka(from.x,from.y,to.x + to.width,to.y,vx,vy,0,to.height) || 
+						 useckaUsecka(to.x + to.width,to.y,from.x,from.y,-vx,-vy,0,from.height)){  //Right
+						from.ax = 0;
+						from.vx -= ax * from.invMass;
+						to.sax = -0;
+						to.svx += ax * to.invMass;
+						return true;
+					} else return false;				
+				} else {
+					if(useckaUsecka(from.x,from.y,to.x + to.width,to.y,vx,vy,0,to.height) || 
+					  useckaUsecka(to.x + to.width,to.y,from.x,from.y,-vx,-vy,0,from.height)){ //Right
+						from.ax = 0;
+						from.vx -= ax * from.invMass;
+						to.sax = -0;
+						to.svx += ax * to.invMass;
+						return true;
+					} else return false;	
+				}
+			} else {
+				if ( from.y + from.height <= to.y){
+					if (useckaUsecka(from.x,from.y + from.height,to.x,to.y,vx,svy,to.width,0) ||
+					   useckaUsecka(to.x,to.y,from.x,from.y + from.height,-vx,-svy,from.width,0)){ //Top
+						from.say = -0;
+						from.svy -= say * from.invMass;
+						to.ay = 0;
+						to.vy += say * to.invMass;
+						return true;
+					} else return false;
+				} else if (from.y >= to.y + to.height){
+					if (useckaUsecka(from.x,from.y,to.x,to.y + to.height,vx,vy,to.width,0) ||
+					   useckaUsecka(to.x,to.y + to.height,from.x,from.y,-vx,-vy,from.width,0)){ //Bottom
+						from.ay = 0;
+						from.vy -= ay * from.invMass;
+						to.say = -0;
+						to.svy += ay * to.invMass;
+						return true;
+					}
+				} else {
+					return true;
+				}
+			}			
 		break;
 	}
 }
@@ -178,6 +296,7 @@ function bih2d(length){
 	this.length = l;	
 	this.half = l >>= 1;
 	this.empty = true;
+	this.fullness = 0;
 
 	for(var i = 1;i<l;++i){
 		this.buffer[i] = null;
@@ -216,18 +335,34 @@ function bih2d(length){
 		var swaptemp;
 		var mid;
 		this.empty = true;
+		this.fullness = 0;
 
 		parity = 0;
 		lastbit = 2;
+			
+		var a,b;
+		
 		for(var i=1;i<=this.length;++i) {
-			if(this.buffer[i] && !this.buffer[i].exists) this.buffer[i] = null;
-			if(this.buffer[i]) this.empty = false;
+			a = this.buffer[i];
+			if(a && !a.exists) this.buffer[i] = null;
+			if(a) {this.empty = false;this.fullness ++;}
 		}
+
+		this.half = this.length >> 1;
+		
 		if(this.empty) return false;
-		for(var i=this.half;i>0;--i) {
-			if((!this.buffer[i]) && (this.buffer[i << 1])) {this.buffer[i] = this.buffer[i << 1];this.buffer[i << 1] = null; i <<= 1;}
-			if((!this.buffer[i]) && (this.buffer[(i << 1) | 1])){this.buffer[i] = this.buffer[(i << 1) | 1]; this.buffer[(i << 1) | 1] = null; i <<= 1; i |= 1;}						
+		for(i=this.half;i>0;--i) {
+			a = this.buffer[i];
+			b = this.buffer[i << 1];
+			if(!a && b) {this.buffer[i] = b;this.buffer[i << 1] = null; i <<= 1;}
+			b = this.buffer[(i << 1) | 1]; 
+			if(!a && b){this.buffer[i] = b; this.buffer[(i << 1) | 1] = null; i <<= 1; i |= 1;}						
 		}
+
+
+
+		this.half = this.fullness >> 1;
+
 		for(i=1;i<this.half;++i){
 			if(lastbit & i) {
 				parity ^= 1;
@@ -251,8 +386,6 @@ function bih2d(length){
 			rhi = rlo = llo + 1;
 			sllo = slhi = sleft = llo;
 			srlo = srhi = sright = rlo;
-		
-
 
 	
 			mid = this.findMedian(i,parity);
@@ -266,16 +399,19 @@ function bih2d(length){
 
 			while(lhi <= this.length){
 				for(j = llo; j <= lhi; ++j){
-					if(this.buffer[j]){
+					a = this.buffer[i];
+					b = this.buffer[j];
+					if(b){
 						if(parity){
-							if(this.buffer[i].x1 > this.buffer[j].x1 ) {
-								if(this.buffer[i].x2 < this.buffer[j].x2) {
-									swaptemp = this.buffer[i];
-									this.buffer[i] = this.buffer[j];
-									this.buffer[j] = swaptemp;
+							if(a.x1 > b.x1 ) {
+								if(a.x2 < b.x2) {
+									this.buffer[i] = b;
+									this.buffer[j] = a;
+									a = this.buffer[i];
+									b = this.buffer[j];
 								} 
-							}else if(this.buffer[i].x2 < this.buffer[j].x2) do {
-								if ((this.buffer[sright])  && (this.buffer[i].x2 < this.buffer[sright].x2)){
+							}else if(a.x2 < b.x2) do {
+								if ((this.buffer[sright])  && (a.x2 < this.buffer[sright].x2)){
 									++sright;
 									if(sright > srhi){
 										srlo <<= 1;
@@ -284,11 +420,11 @@ function bih2d(length){
 										sright = srlo;
 									}
 								} else {
-									swaptemp = this.buffer[sright];
-									this.buffer[sright] = this.buffer[j];
-									this.buffer[j] = swaptemp;
+									this.buffer[j] = this.buffer[sright];
+									this.buffer[sright] = b;
+									b = this.buffer[j];
 								}
-							} while((this.buffer[j])  && (this.buffer[i].x2 < this.buffer[j].x2));  
+							} while(b  && (a.x2 < b.x2));  
 						} else {
 							if(this.buffer[i].y1 > this.buffer[j].y1 ) {
 								if(this.buffer[i].y2 < this.buffer[j].y2) {
@@ -431,7 +567,7 @@ function bih2d(length){
 		var count = 0;
 		var c = this.buffer;
 		hi = lo = root;
-		while(hi <= this.length){
+		while(hi <= this.half << 1){
 			for(var i=lo;i <= hi;++i){
 				if(this.buffer[i]) {
 					this.temparray.push(i);
