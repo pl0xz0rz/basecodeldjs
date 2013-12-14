@@ -26,6 +26,7 @@ function PhysicsObject(x,y,vx,vy,width,height){
 	this.xFriction = .5;
 	this.yFriction = .5;
 		
+	this.invMass = 1;
 
 	this.garbage = false;
 
@@ -73,36 +74,41 @@ function PhysicsObject(x,y,vx,vy,width,height){
 
 }
 
-function HeroFairy(x,y,r,str,hp,mana){
-  this.po = new PhysicsObject(x-r,y-r,0,0,r*2,r*2);
-this.x = x;
-this.y = y;
-this.str = str;
-this.hp = hp;
-this.maxhp = hp;
-this.mana = mana;
-this.maxmana = mana;
-  this.render = render;
+function GenericMob(x,y,t,str,hp,mana){
+  this.t = t;
+  this.img = imgs[t];
+  this.width = widths[t];
+  this.height = heights[t];
+  this.po = new PhysicsObject(x,y,0,0,this.width,this.height);
+
+  this.x = x;
+  this.y = y;
+  this.str = str;
+  this.hp = hp;
+  this.maxhp = hp;
+  this.mana = mana;
+  this.maxmana = mana;
   this.exists = true;
   this.cooldown = 5;
   this.cdtime = 0;
 
+  this.cx = 0;
+  this.cy = 0;
+
+  this.unitcollision = true;
+
   this.inventory = new inv();
 
+  this.render = render;
   function render(){
-		obdl.beginPath();
-		obdl.strokeStyle="#000000";
-		obdl.fillStyle="#c1ff99";
-		obdl.lineWidth=2;
-		obdl.moveTo(this.po.x - camera.x + this.po.width / 2, this.po.y - camera.y);
-		obdl.quadraticCurveTo(this.po.x - camera.x,this.po.y - camera.y,this.po.x - camera.x,this.y - camera.y+ this.po.height / 2);
-		obdl.quadraticCurveTo(this.po.x - camera.x,this.po.y - camera.y+ this.po.height,this.po.x  - camera.x + this.po.width/2,this.po.y - camera.y + this.po.height);
-		obdl.quadraticCurveTo(this.po.x - camera.x + this.po.width,this.po.y - camera.y + this.po.height,this.po.x - camera.x + this.po.width,this.y - camera.y + this.po.height/2);
-		obdl.quadraticCurveTo(this.po.x - camera.x + this.po.width,this.po.y - camera.y,this.po.x  - camera.x+ this.po.width / 2,this.po.y - camera.y);
-		obdl.fill();
-		obdl.stroke();
-		var p = new Particle(this.x,this.y,10,"#99ff99",30);
-		displayObjects.push(p);	
+   	switch(this.t){
+		case 129:
+		case 1153:
+			obdl.drawImage(this.img,this.x - camera.x - this.width / 2,this.y - camera.y - this.height * 1.5);
+		break;
+		default: obdl.drawImage(this.img,this.x - camera.x - this.width / 2,this.y - camera.y - this.height / 2);
+			
+	} 
   }
   this.updateFrame = updateFrame;
   function updateFrame(){
@@ -111,7 +117,6 @@ this.maxmana = mana;
     this.y = this.po.y + this.po.height / 2;
     if(Math.abs(this.po.vx - this.po.svx) > .5) this.hp -= 1;
     if(Math.abs(this.po.vy - this.po.svy) > .7) this.hp -= 1;
-    if(this.cdtime < (this.cooldown + 2))this.cdtime ++;
     this.mana += .01;
     if ((this.mana > this.maxmana) && (this.hp < this.maxhp)) {
 		var t = this.mana - this.maxmana;
@@ -122,6 +127,8 @@ this.maxmana = mana;
     this.x2 = this.po.x2;
     this.y1 = this.po.y1;
     this.y2 = this.po.y2;
+    this.cx = (this.x1 + this.x2) * .5;
+    this.cy = (this.x1 + this.x2) * .5;
   }
   this.seek = seek;
   function seek(x,y){
@@ -150,6 +157,26 @@ this.maxmana = mana;
   function action(x,y){
 
   }
+  
+  this.hit = hit;
+  function hit(by){
+  switch(stuff.buffer[by].t){
+	case 128:
+		if(this.t & 1024)this.exists = false;
+	break;
+  }
+
+	this.selfdestruct = selfdestruct;
+	function selfdestruct(){
+		switch(this.t){
+			case 131: protagonistChangeStage = 513;
+			case 132: wincondition = true;
+		}
+		if(this.t & 1024) this.exists = false;
+		this.unitcollision = true;
+		this.t |= 1024;
+		this.hp = 1;
+	}
 }
 
 function Wall(x,y,type){
@@ -181,6 +208,9 @@ function Wall(x,y,type){
 		
 	this.unlock = unlock;
 	function unlock(index){
+		if(this.t & 512){
+			protagonistChangeStage = this.t;
+		}
 		switch(this.lock){
 			case 1:
 				this.exists = false;
@@ -221,7 +251,7 @@ function Gate(x1,y1,x2,y2){
 
 	this.activate = activate;
 	function activate(t){
-
+		
 	}
 }
 
@@ -231,7 +261,7 @@ function Powerup(x,y,t){
 	
 	this.oy = y;
 	
-	this.id = t;
+	this.t = t;
 	
 
 
@@ -244,7 +274,7 @@ function Powerup(x,y,t){
 	this.y1 = this.y;
 	this.y2 = this.y + this.height;
 
-	this.vy = 2;
+	this.vy = this.height * .02;
 	
 	this.exists = true;
 	
@@ -252,7 +282,7 @@ function Powerup(x,y,t){
 	
 	this.render = render;
 	function render(){
-		if(!this.eaten){
+
 			obdl.drawImage(this.img,this.x - camera.x,this.y - camera.y);
 		this.y += this.vy;
 		this.vy -= (this.y -this.oy) * .05; //animation, couldn't make anything better
@@ -264,8 +294,51 @@ function Powerup(x,y,t){
 	this.activate = activate;
 	function activate(t){
 
+
 	}
 
+}
+
+function Bullet(x,y,r,vx,vy,immunity){
+	this.vx = vx;
+	this.vy = vy;
+	this.x = x;
+	this.y = y;
+	this.r = r;
+	this.width = 1;
+	this.height = 1;
+	
+	this.immunity = immunity;
+
+	this.damage = 0;
+
+	this.lifetime = 100;
+
+		this.x1 = this.x - 1;
+		this.y1 = this.y - 1;
+		this.x2 = this.x + 2;
+		this.y2 = this.x + 2;
+
+	this.exists = true;
+	
+	this.updateFrame=updateFrame;
+	function updateFrame(){
+		this.x += this.vx;
+		this.y += this.vy;
+		this.x1 = this.x - 10;
+		this.y1 = this.y - 10;
+		this.x2 = this.x + 12;
+		this.y2 = this.x + 12;
+		if(!(this.lifetime--))this.exists = false;
+	}
+	
+	this.render = render;
+	function render(){
+		obdl.fillStyle="#ffffff";
+		obdl.beginPath();
+		obdl.arc(this.x - camera.x,this.y - camera.y,this.r,0,2*Math.PI);
+		obdl.fill();	
+	}
 }
 
 function Particle(x,y,r,color,timer){
@@ -281,6 +354,8 @@ function Particle(x,y,r,color,timer){
 	this.color = color;
 	this.tick = r / timer;
 	this.exists = true;
+		
+	this.t = 0;
 
 	this.render = render;
 	function render(){
@@ -315,9 +390,43 @@ function inv(){
 			if((this.thearray[i].id == id) && (this.thearray[i].amount >= amount)) {this.thearray[i].amount -= amount; return true;}
 		return false;
 	}
+
+	this.checkItem = checkItem;
+	function checkItem(id,amount){
+		for(var i=0;i<this.thearray.length;++i) 
+			if((this.thearray[i].id == id) && (this.thearray[i].amount >= amount)) {return true;}
+		return false;
+	}
+
+	this.amountOf = amountOf;
+	function amountOf(id){
+		for(var i=0;i<this.thearray.length;++i) 
+			if((this.thearray[i].id == id) ) {return this.thearray[i].amount;}
+		return 0;
+	}
+}
+
+function LightningBolt(x1,y1,x2,y2){
+	this.x1 = x1;
+	this.x2 = x2;
+	this.y1 = y1;
+	this.y2 = y2;
+	this.timer = 30;
+	this.exists = true;
+
+	this.render = render;
+	function render(){
+		obdl.strokeStyle="#ffffc1";
+		obdl.lineWidth=this.timer/5;
+		obdl.beginPath();
+		obdl.moveTo(this.x1 - camera.x,this.y1 - camera.y);
+		obdl.lineTo(this.x2 - camera.x,this.y2 - camera.y);
+		obdl.stroke();
+		if(--this.timer<0) this.exists = false;
+	}
+
 }
 
 var imgs = [];
 var widths = [];
 var heights = [];
-
